@@ -1,0 +1,32 @@
+ContactActions-Exam
+
+A single-activity Android app that collects user information and triggers two actions using implicit intents. The app restores UI state across rotation and handles permission denial gracefully.
+
+##Design Note
+
+I chose theme scoping over style scoping for the Name label because themes provide better inheritance control and can be applied to specific components without affecting the entire app. The GreenTextTheme inherits from the base theme and only overrides text color and size, making it maintainable and reusable while avoiding unintended styling cascade.
+
+For permission timing, I implemented just-in-time permission requests using the ActivityResultContracts.RequestPermission() API. This approach requests the CALL_PHONE permission only when the user attempts to dial, improving user experience by not overwhelming them with permission requests during app launch while maintaining security.
+
+I selected onSaveInstanceState for state persistence because this app doesn't require long-term data storage. The state only needs to survive configuration changes like rotation and temporary process death, making Android's built-in state management system the most appropriate solution. This approach is lightweight, requires no external dependencies, and integrates seamlessly with the Android lifecycle.
+
+##Test Plan
+
+- Rotation after form fill: Fill out all form fields, rotate device, verify all data is preserved including text inputs, radio button selection, and checkbox state
+- Denied permission path: Enter phone number, tap Dial, deny CALL_PHONE permission, verify fallback to dialer opens instead of making direct call
+-Invalid URL path: Enter invalid website URL (e.g., "not-a-url"), tap Open, verify error dialog appears with appropriate user-friendly message
+- Device with no browser: Enter valid website URL, tap Open, verify app handles the absence of a browser app gracefully without crashing
+- First launch with empty state: Launch app for first time, verify all fields are empty, action buttons are properly disabled, and no crashes occur
+
+##Features Implemented
+
+- ConstraintLayout with all required inputs (Name, Phone, Website, Work Status, Terms)
+- Resource-based strings and colors (red, blue, green, white)
+- Derived theme with scoped styling applied only to Name label
+- Reusable button style with red background, white text, and rounded corners
+- State persistence across rotation and process death using onSaveInstanceState
+- Runtime permission handling with graceful fallback to dialer
+- Input validation with user-friendly error messages
+- Dynamic button enablement based on field content validity
+- Implicit intents for dialing and opening websites
+- Robust error handling with user-friendly AlertDialogs
